@@ -2,12 +2,12 @@ package jm.task.core.jdbc;
 
 import jm.task.core.jdbc.dao.UserDao;
 import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
+import jm.task.core.jdbc.util.Util;
 
 import java.util.Arrays;
 
 public class Main {
-    public static void main(String[] args) {
-        // реализуйте алгоритм здесь
+    public static void main(String[] args) {// реализуйте алгоритм здесь
         UserDao userDao = new UserDaoJDBCImpl();
         userDao.createUsersTable();
         for (int i = 1; i < 5; i++) {
@@ -19,5 +19,6 @@ public class Main {
         System.out.println(Arrays.toString(userDao.getAllUsers().toArray()));
         userDao.cleanUsersTable();
         userDao.dropUsersTable();
+        Util.closeConnection();
     }
 }

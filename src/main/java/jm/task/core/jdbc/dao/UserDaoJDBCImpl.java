@@ -4,6 +4,7 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,17 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private Connection connection;
-    private Statement statement;
-    {
-        try {
-            connection = Util.getConnection();
-            statement = connection.createStatement();
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+    private Connection connection = Util.getConnection();
 
     public UserDaoJDBCImpl() {//конструктор пустой/по умолчанию
 
@@ -34,7 +25,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 "lastname varchar(45) NOT NULL," +
                 "age int DEFAULT NULL," +
                 "PRIMARY KEY (id))";
-        try {
+        try (Statement statement = connection.createStatement()){
             statement.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -43,7 +34,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         String query = "DROP TABLE IF EXISTS users;";
-        try {
+        try (Statement statement = connection.createStatement()){
             statement.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,19 +42,22 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        String query = "insert into users (name, lastname, age) " +
-                "values('" + name + "','" + lastName + "'," + age + ");";
-        try {
-            statement.executeUpdate(query);
+        String query = "insert into users (name, lastname, age) values(?,?,?);";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setByte(3, age);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void removeUserById(long id) {
-        String query = "delete from users where id =" + id + ";";
-        try {
-            statement.executeUpdate(query);
+        String query = "delete from users where id = ?;";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -72,7 +66,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
         String query = "select * from users;";
-        try {
+        try (Statement statement = connection.createStatement()){
             ResultSet rs = statement.executeQuery(query);
             while (rs.next()) {
                 Long id = rs.getLong("id");
@@ -89,13 +83,12 @@ public class UserDaoJDBCImpl implements UserDao {
         return userList;
     }
 
-        public void cleanUsersTable() {
+    public void cleanUsersTable() {
         String query = "truncate users;";
-        try {
+        try (Statement statement = connection.createStatement()){
             statement.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 }
