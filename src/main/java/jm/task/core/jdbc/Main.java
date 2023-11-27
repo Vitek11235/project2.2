@@ -1,6 +1,7 @@
 package jm.task.core.jdbc;
 
 import jm.task.core.jdbc.dao.UserDao;
+import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
 import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 import jm.task.core.jdbc.util.Util;
 
@@ -8,7 +9,8 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {// реализуйте алгоритм здесь
-        UserDao userDao = new UserDaoJDBCImpl();
+//        UserDao userDao = new UserDaoJDBCImpl();
+        UserDao userDao = new UserDaoHibernateImpl();
         userDao.createUsersTable();
         for (int i = 1; i < 5; i++) {
             String name = "Name" + i;
@@ -19,6 +21,7 @@ public class Main {
         System.out.println(Arrays.toString(userDao.getAllUsers().toArray()));
         userDao.cleanUsersTable();
         userDao.dropUsersTable();
-        Util.closeConnection();
+//        Util.closeConnection();
+        Util.closeSessionFactory();
     }
 }
